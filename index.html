@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FraudShield – Smart Message Fraud Detector</title>
+  <style>
+    /* ============================================================
+       FraudShield - Modern, Clean, Responsive Stylesheet
+       Built with pure CSS (Zero external dependencies or CDNs)
+       ============================================================ */
+
+    :root {
+      /* Theme Color Palette */
+      --bg-main: #0B0F19;
+      --bg-card: #131B2E;
+      --bg-card-hover: #1A243D;
+      --bg-input: #0F172A;
+      --border-subtle: #24314E;
+      --border-focus: #6366F1;
+
+      /* Primary Accents */
+      --primary: #6366F1;
+      --primary-hover: #4F46E5;
+      --primary-light: rgba(99, 102, 241, 0.15);
+
+      /* Risk Status Colors (Requirement 9) */
+      --risk-low: #10B981;        /* Emerald / Green (0-29 Low Risk) */
+      --risk-low-bg: rgba(16, 185, 129, 0.12);
+      --risk-low-border: rgba(16, 185, 129, 0.35);
+
+      --risk-medium: #F59E0B;     /* Amber / Orange (30-59 Medium Risk) */
+      --risk-medium-bg: rgba(245, 158, 11, 0.12);
+      --risk-medium-border: rgba(245, 158, 11, 0.35);
+
+      --risk-high: #EF4444;       /* Crimson / Red (60-100 High Risk) */
+      --risk-high-bg: rgba(239, 68, 68, 0.12);
+      --risk-high-border: rgba(239, 68, 68, 0.35);
+
+      /* Typography Colors */
+      --text-main: #F8FAFC;
+      --text-muted: #94A3B8;
+      --text-dim: #64748B;
+
+      /* Radii & Shadows */
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      --radius-full: 9999px;
+      --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+      --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+      --transition: all 0.25s ease;
+    }
+
+    /* Reset & Base Styles */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding: 24px 16px 60px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Outer Wrapper */
+    .app-container {
+      width: 100%;
+      max-width: 1080px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    /* Header Section */
+    .header {
+      text-align: center;
+      padding: 12px 8px;
+      position: relative;
+    }
+
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--primary-light);
+      color: #A5B4FC;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 14px;
+      letter-spacing: 0.3px;
+    }
+
+    .badge-pill svg {
+      width: 15px;
+      height: 15px;
+      fill: currentColor;
+    }
+
+    .header h1 {
+      font-size: clamp(1.8rem, 4vw, 2.75rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #FFFFFF 30%, #A5B4FC 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      color: var(--text-muted);
+      font-size: clamp(0.95rem, 2vw, 1.15rem);
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    /* Card Component */
+    .card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+    }
+
+    .card:hover {
+      border-color: rgba(99, 102, 241, 0.3);
+    }
+
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .card-title svg {
+      width: 22px;
+      height: 22px;
+      color: var(--primary);
+    }
+
+    /* Sample Messages Section */
+    .sample-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .sample-chips-label {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .sample-chips {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+    }
+
+    .sample-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      font-size: 0.86rem;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: var(--transition);
+    }
+
+    .sample-btn:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--primary);
+      transform: translateY(-1px);
+    }
+
+    .sample-btn .chip-tag {
+      font-size: 0.72rem;
+      padding: 3px 7px;
+      border-radius: var(--radius-full);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .chip-tag.danger {
+      background: rgba(239, 68, 68, 0.2);
+      color: #F87171;
+    }
+
+    .chip-tag.safe {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34D399;
+    }
+
+    /* Message Input Box */
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .textarea-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .char-counter {
+      font-variant-numeric: tabular-nums;
+    }
+
+    textarea#messageInput {
+      width: 100%;
+      min-height: 160px;
+      padding: 16px;
+      background-color: var(--bg-input);
+      border: 1.5px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.98rem;
+      line-height: 1.6;
+      resize: vertical;
+      transition: var(--transition);
+    }
+
+    textarea#messageInput:focus {
+      outline: none;
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+    }
+
+    textarea#messageInput::placeholder {
+      color: var(--text-dim);
+    }
+
+    /* Validation Alert Message */
+    .validation-alert {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      background: var(--risk-high-bg);
+      border: 1px solid var(--risk-high-border);
+      color: #FCA5A5;
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      font-size: 0.9rem;
+      animation: fadeIn 0.25s ease-in-out;
+    }
+
+    .validation-alert.visible {
+      display: flex;
+    }
+
+    /* Action Buttons Row */
+    .action-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .action-group-left, .action-group-right {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 22px;
+      border-radius: var(--radius-md);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: var(--transition);
+      user-select: none;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(99, 102, 241, 0.5);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-card-hover);
+      color: var(--text-main);
+      border-color: #384566;
+    }
+
+    .btn-kbd {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-family: monospace;
+      margin-left: 4px;
+    }
+
+    /* Results Container */
+    .results-section {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    /* Score Overview Hero Banner */
+    .score-banner {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 28px;
+      align-items: center;
+      padding: 24px 28px;
+      border-radius: var(--radius-lg);
+      border: 1.5px solid var(--border-subtle);
+      background: var(--bg-card);
+      position: relative;
+      overflow: hidden;
+    }
+
+    @media (max-width: 768px) {
+      .score-banner {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 18px;
+        justify-items: center;
+      }
+    }
+
+    /* Gauge / Circular Score Indicator */
+    .score-circle-wrapper {
+      position: relative;
+      width: 115px;
+      height: 115px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .score-circle-svg {
+      transform: rotate(-90deg);
+      width: 100%;
+      height: 100%;
+    }
+
+    .score-circle-bg {
+      fill: none;
+      stroke: var(--border-subtle);
+      stroke-width: 8;
+    }
+
+    .score-circle-progress {
+      fill: none;
+      stroke-width: 8;
+      stroke-linecap: round;
+      stroke-dasharray: 283;
+      stroke-dashoffset: 283;
+      transition: stroke-dashoffset 0.8s ease-in-out, stroke 0.4s ease;
+    }
+
+    .score-text-inner {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .score-number {
+      font-size: 1.95rem;
+      font-weight: 800;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .score-max {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* Category & Risk Classification Info */
+    .score-info {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .category-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      font-size: 0.88rem;
+      font-weight: 700;
+      width: fit-content;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .score-classification {
+      font-size: 1.55rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+    }
+
+    .score-subtext {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    /* Progress bar below banner */
+    .meter-container {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .meter-track {
+      width: 100%;
+      height: 10px;
+      background: var(--bg-input);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .meter-bar {
+      height: 100%;
+      width: 0%;
+      border-radius: var(--radius-full);
+      transition: width 0.7s ease, background-color 0.4s ease;
+    }
+
+    .meter-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.76rem;
+      color: var(--text-dim);
+      font-weight: 600;
+    }
+
+    /* Detected Patterns Grid */
+    .indicators-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .indicator-card {
+      background: var(--bg-input);
+      border-left: 4px solid var(--primary);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      border-top: 1px solid var(--border-subtle);
+      border-right: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .indicator-card.high {
+      border-left-color: var(--risk-high);
+    }
+
+    .indicator-card.medium {
+      border-left-color: var(--risk-medium);
+    }
+
+    .indicator-card.low {
+      border-left-color: var(--risk-low);
+    }
+
+    .indicator-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .indicator-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .indicator-points {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: var(--radius-full);
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+    }
+
+    .indicator-details {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+    }
+
+    .matched-phrase {
+      background: rgba(99, 102, 241, 0.15);
+      color: #C7D2FE;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.82rem;
+    }
+
+    /* Neutral notice when no patterns match (Requirement 11) */
+    .neutral-notice {
+      background: var(--risk-low-bg);
+      border: 1px solid var(--risk-low-border);
+      color: #A7F3D0;
+      padding: 16px 20px;
+      border-radius: var(--radius-md);
+      font-size: 0.93rem;
+      line-height: 1.6;
+    }
+
+    /* Recommendations Checklist */
+    .recommendations-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .recommendations-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 0.92rem;
+      color: var(--text-main);
+      background: var(--bg-input);
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .recommendations-list li svg {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      margin-top: 2px;
+      color: var(--primary);
+    }
+
+    /* Educational "How it works" Grid */
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin-top: 12px;
+    }
+
+    .info-box {
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px;
+    }
+
+    .info-box h4 {
+      font-size: 0.96rem;
+      font-weight: 700;
+      color: #A5B4FC;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .info-box p {
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Disclaimer box (Requirement 28) */
+    .disclaimer-box {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      font-size: 0.83rem;
+      color: var(--text-muted);
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      line-height: 1.6;
+    }
+
+    .disclaimer-box svg {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      margin-top: 2px;
+      color: #F59E0B;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.84rem;
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    footer a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Keyframe Animations */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- ============================================================
+         Header Section: Title, Subtitle, and Privacy Badge
+         ============================================================ -->
+    <header class="header">
+      <div class="badge-pill">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-3zm-1 15l-4-4 1.41-1.41L11 14.17l6.59-6.59L19 9l-8 8z"/>
+        </svg>
+        <span>100% Client-Side Detection • Zero Private Messages Stored</span>
+      </div>
+      <h1>FraudShield</h1>
+      <p>Smart Message Fraud Detector — Analyze SMS, WhatsApp messages, emails, and links for scam patterns and phishing risks in real time.</p>
+    </header>
+
+    <!-- ============================================================
+         Sample Messages Section: Quick-Click Test Cases (Requirement 12)
+         ============================================================ -->
+    <section class="sample-section">
+      <span class="sample-chips-label">Quick Test Examples (Click to Load):</span>
+      <div class="sample-chips">
+        <button type="button" class="sample-btn" data-type="bank">
+          <span class="chip-tag danger">High Risk</span>
+          <span>Suspicious Bank Block Alert</span>
+        </button>
+        <button type="button" class="sample-btn" data-type="lottery">
+          <span class="chip-tag danger">High Risk</span>
+          <span>Fake Lottery & Prize Claim</span>
+        </button>
+        <button type="button" class="sample-btn" data-type="job">
+          <span class="chip-tag danger">High Risk</span>
+          <span>Fraudulent Work-From-Home Job</span>
+        </button>
+        <button type="button" class="sample-btn" data-type="otp">
+          <span class="chip-tag danger">High Risk</span>
+          <span>Fake Card OTP Verification</span>
+        </button>
+        <button type="button" class="sample-btn" data-type="college">
+          <span class="chip-tag safe">Low Risk</span>
+          <span>College Exam Announcement</span>
+        </button>
+        <button type="button" class="sample-btn" data-type="friend">
+          <span class="chip-tag safe">Low Risk</span>
+          <span>Friendly Chat Message</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         Main Message Input Card
+         ============================================================ -->
+    <main class="card">
+      <h2 class="card-title">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+        </svg>
+        Check a Suspicious Message
+      </h2>
+
+      <div class="input-wrapper">
+        <div class="textarea-header">
+          <span>Paste or type your SMS, email, or messaging text below:</span>
+          <span class="char-counter" id="charCounter">0 characters • 0 words</span>
+        </div>
+
+        <textarea
+          id="messageInput"
+          placeholder="Example: 'URGENT: Your SBI Bank account has been temporarily suspended due to KYC verification. Please click http://bit.ly/bank-kyc immediately or account will be permanently blocked within 24 hours...'"></textarea>
+
+        <!-- Empty Input Validation Alert (Requirement 10) -->
+        <div class="validation-alert" id="validationAlert" role="alert">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+          <span id="validationText">Please enter or paste a message before analyzing.</span>
+        </div>
+
+        <!-- Action Buttons Row -->
+        <div class="action-bar">
+          <div class="action-group-left">
+            <button type="button" class="btn btn-primary" id="analyzeBtn">
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+              <span>Analyze Message</span>
+              <span class="btn-kbd">Ctrl + Enter</span>
+            </button>
+            <button type="button" class="btn btn-secondary" id="clearBtn">
+              <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              </svg>
+              <span>Clear</span>
+            </button>
+          </div>
+
+          <div class="action-group-right">
+            <button type="button" class="btn btn-secondary" id="pasteBtn">
+              <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+              </svg>
+              <span>Paste from Clipboard</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ============================================================
+         Results Section (Displayed after analysis) (Requirements 5, 8, 9, 11)
+         ============================================================ -->
+    <section id="resultsSection" class="results-section" style="display: none;">
+
+      <!-- Overall Score Banner Card -->
+      <div class="score-banner" id="scoreBanner">
+        
+        <!-- Animated Circular Score Gauge -->
+        <div class="score-circle-wrapper">
+          <svg class="score-circle-svg" viewBox="0 0 100 100">
+            <circle class="score-circle-bg" cx="50" cy="50" r="45"></circle>
+            <circle class="score-circle-progress" id="scoreProgressCircle" cx="50" cy="50" r="45"></circle>
+          </svg>
+          <div class="score-text-inner">
+            <span class="score-number" id="scoreValue">0</span>
+            <span class="score-max">/ 100</span>
+          </div>
+        </div>
+
+        <!-- Classification Info -->
+        <div class="score-info">
+          <span class="category-badge" id="riskBadge">Low Risk</span>
+          <h3 class="score-classification" id="categoryTitle">Likely Genuine</h3>
+          <p class="score-subtext" id="categorySummary">No major fraud indicators were identified in this message.</p>
+          
+          <!-- Visual Linear Progress Meter -->
+          <div class="meter-container">
+            <div class="meter-track">
+              <div class="meter-bar" id="meterBar"></div>
+            </div>
+            <div class="meter-labels">
+              <span>0 (Safe)</span>
+              <span>30 (Suspicious)</span>
+              <span>60 (Likely Fraud)</span>
+              <span>100</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Why was this flagged? Card (Requirement 8) -->
+      <div class="card">
+        <h3 class="card-title">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Why was this message flagged?
+        </h3>
+        <p id="explanationText" style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.7;"></p>
+      </div>
+
+      <!-- Detected Patterns & Keywords Card (Requirement 6 & 8) -->
+      <div class="card">
+        <h3 class="card-title">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+          </svg>
+          Detected Warning Signs (<span id="detectedCount">0</span> detected)
+        </h3>
+        <div id="indicatorsContainer" class="indicators-list"></div>
+      </div>
+
+      <!-- Safety Recommendations Card (Requirement 8) -->
+      <div class="card">
+        <h3 class="card-title">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+          </svg>
+          Practical Safety Recommendations
+        </h3>
+        <ul class="recommendations-list" id="recommendationsList"></ul>
+      </div>
+
+      <!-- Disclaimer Box (Requirements 9, 11, 28) -->
+      <div class="disclaimer-box">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+        <div>
+          <strong>Important Risk Assessment Disclaimer:</strong> FraudShield provides an automated heuristic risk estimate for educational and precautionary purposes. It is <em>not</em> a definitive legal verification or certified guarantee that any message is 100% genuine or fraud. Attackers constantly create new phrasing and may use compromised legitimate accounts. Always independently verify suspicious communications directly through trusted official phone numbers, official mobile apps, or physical branch locations before taking action.
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ============================================================
+         Educational Section: How Rule-Based Fraud Detection Works
+         ============================================================ -->
+    <section class="card">
+      <h3 class="card-title">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+        </svg>
+        How FraudShield Analyzes Messages (Beginner Guide)
+      </h3>
+      <div class="info-grid">
+        <div class="info-box">
+          <h4>1. Pattern & Keyword Scanner</h4>
+          <p>Uses regular expressions (regex) to search for common scam signals, such as artificial urgency, threats of account blockage, requests for OTPs, and unfamiliar links.</p>
+        </div>
+        <div class="info-box">
+          <h4>2. Weighted Risk Scoring</h4>
+          <p>Assigns risk points based on threat severity. Critical dangers (like OTP requests or remote access apps) contribute more heavily than general urgent words.</p>
+        </div>
+        <div class="info-box">
+          <h4>3. Tiered Classification</h4>
+          <p>Calculates a normalized score (0–100) mapped to 3 clear levels: Low Risk (0–29), Medium Risk (30–59), and High Risk (60–100).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         Footer
+         ============================================================ -->
+    <footer>
+      <p><strong>FraudShield</strong> – Smart Message Fraud Detector</p>
+      <p>Built with HTML, CSS, and JavaScript • 100% Client-Side Detection • Free & Open-Source</p>
+    </footer>
+
+  </div>
+
+  <!-- ============================================================
+       JavaScript: Beginner-Friendly Rule-Based Fraud Detection Logic
+       ============================================================ -->
+  <script>
+    /**
+     * FRAUDSHIELD DETECTION ENGINE
+     * ------------------------------------------------------------
+     * This script inspects text messages using a rule-based algorithm.
+     * Each rule looks for specific keywords or regular expression patterns
+     * commonly seen in SMS phishing (smishing), email scams, and social engineering.
+     */
+
+    // Sample messages for immediate testing (Requirement 12)
+    const SAMPLE_MESSAGES = {
+      bank: "URGENT: Your SBI Bank account has been temporarily suspended due to pending KYC verification. Please click http://bit.ly/sbi-kyc-update immediately to update your Aadhaar and PAN details to avoid permanent account block within 24 hours.",
+      lottery: "CONGRATULATIONS! Your mobile number was selected as the 1st prize winner of $500,000 in the 2026 International Lottery Promo! To claim your cash prize, pay the $150 processing and courier fee via wire transfer.",
+      job: "Amazon Recruitment Alert: Part-time work from home opportunity! Earn $500-$1,500 daily by simply rating products for 30 minutes a day. Guaranteed daily payout. Pay a one-time refundable registration fee of $30 to activate your worker ID.",
+      otp: "Dear customer, a payment of $749.00 to Apple Store is currently pending on your credit card. If you did NOT make this transaction, reply immediately with the 6-digit OTP code sent to your mobile to cancel.",
+      college: "Hi students, please note that the Midterm Exam schedule for Computer Science has been posted on the college portal. The lab exam is scheduled for next Tuesday at 10:00 AM in Hall B. Please bring your student ID card.",
+      friend: "Hey! Are you coming to the college cafeteria for lunch? Let me know, Rahul and Sneha are already here saving a table for us."
+    };
+
+    /**
+     * FRAUD DETECTION RULES (Requirement 6 & 7)
+     * ------------------------------------------------------------
+     * Each rule contains:
+     * - id: Unique string identifier
+     * - category: Human-readable category grouping
+     * - title: Summary of the suspicious warning sign
+     * - points: Risk points added to the score (higher = riskier)
+     * - regex: Regular expression pattern to search for
+     * - explanation: Simple explanation of why scammers use this pattern
+     * - tip: Practical safety advice for this warning sign
+     */
+    const FRAUD_RULES = [
+      // 1. Account blocked / suspended threats
+      {
+        id: "account_threat",
+        category: "Account Threats & Coercion",
+        title: "Threat of Account Suspension, Block, or Expiry",
+        points: 25,
+        regex: /\b(account|card|access|service|wallet|sim|profile)\b.*?\b(block|blocked|suspension|suspended|terminated|deactivated|frozen|restricted|disabled|expire)\b/i,
+        explanation: "Scammers create false panic by claiming your bank account, card, or phone service will be disconnected unless you act immediately.",
+        tip: "Never panic. Open your official banking app or call the verified number on the back of your bank card to verify your status."
+      },
+
+      // 2. Urgent requests to transfer money
+      {
+        id: "urgent_transfer",
+        category: "Emergency Financial Demands",
+        title: "Urgent Demand to Send or Transfer Money",
+        points: 25,
+        regex: /\b(transfer|wire|send|deposit|pay)\b.*?\b(money|cash|funds|amount|dollars|rupees|crypto|bitcoin|usdt)\b.*?\b(immediately|urgently|right now|without delay|urgent|asap)\b|\b(wire transfer|instant transfer|urgent money)\b/i,
+        explanation: "Fraudsters rush victims into sending money or wire transfers before they have time to verify the request with family or officials.",
+        tip: "Never send money under pressure. Reputable institutions do not demand emergency fund transfers or gift card payments over text messages."
+      },
+
+      // 3. Requests for OTPs, passwords, PINs, or sensitive credentials
+      {
+        id: "credential_otp",
+        category: "Credential & Identity Theft",
+        title: "Request for OTP, Password, PIN, or CVV",
+        points: 30,
+        regex: /\b(reply|share|send|enter|provide|verify|submit|forward|disclose)\b.*?\b(otp|one time password|pin|mpin|password|cvv|verification code|security code)\b|\b(otp|pin|password|cvv)\b.*?\b(share|send|reply|disclose|enter)\b/i,
+        explanation: "One-Time Passwords (OTPs) and PINs authorize bank withdrawals. Legitimate banks and support teams will NEVER request your OTP.",
+        tip: "Never disclose your OTP, PIN, or password to anyone—not even someone claiming to be bank staff or police."
+      },
+
+      // 4. Fake lottery winnings, prizes, and giveaways
+      {
+        id: "lottery_prize",
+        category: "Fake Rewards & Sweepstakes",
+        title: "Lottery Winning, Free Prize, or Sweepstakes Claim",
+        points: 25,
+        regex: /\b(congratulations|congrats|lottery|winner|you won|cash prize|sweepstakes|lucky draw|free gift card|claim your prize|selected to win)\b/i,
+        explanation: "Scammers entice victims with unexpected prizes to trick them into paying fake clearance fees or revealing personal data.",
+        tip: "If you did not enter a lottery or contest, you cannot win it. Never pay money to receive a prize."
+      },
+
+      // 5. Suspicious investment / guaranteed returns / easy income
+      {
+        id: "suspicious_investment_job",
+        category: "Deceptive Job & Investment Offers",
+        title: "Guaranteed High Returns or Unrealistic Daily Earnings",
+        points: 25,
+        regex: /\b(guaranteed (return|profit|income)|double your (money|investment)|earn (\$\d+|\d+\s*(rs|inr|usd))|part-time job.*?earn|rating products.*?earn|rate products|zero risk investment|daily payout)\b/i,
+        explanation: "Promises of guaranteed high returns, crypto doubling, or high hourly pay for rating hotels are common signs of task or pyramid scams.",
+        tip: "There is no such thing as guaranteed financial returns with zero risk. Legitimate companies do not hire via anonymous SMS."
+      },
+
+      // 6. Impersonation of Banks, Government, Courier, or Support
+      {
+        id: "impersonation",
+        category: "Authority Impersonation",
+        title: "Impersonation of Bank, Govt, Courier, or Tech Giant",
+        points: 20,
+        regex: /\b(income tax department|irs|customs department|fedex|dhl|postal service|courier pending|sbi bank|hdfc bank|chase bank|paypal security|apple store|apple support|amazon recruitment|amazon support|customer care executive)\b/i,
+        explanation: "Attackers forge the names of trusted couriers, tax departments, or banks to lower your guard and manipulate you.",
+        tip: "Directly visit the official website or app of the claimed organization. Do not trust caller ID or message headers alone."
+      },
+
+      // 7. Suspicious links and unfamiliar shortened URLs
+      {
+        id: "suspicious_link",
+        category: "Deceptive Links & Shorteners",
+        title: "Shortened or Suspicious Web URL Detected",
+        points: 25,
+        regex: /https?:\/\/(bit\.ly|tinyurl\.com|t\.co|is\.gd|cutt\.ly|rb\.gy|shorturl\.at|goo\.gl|tiny\.cc)[^\s]*|https?:\/\/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}[^\s]*|https?:\/\/[^\s]*\.(xyz|top|buzz|club|work|click|loan|gq|cf|ml|tk|fit)[^\s]*/i,
+        explanation: "URL shorteners and suspicious domain extensions hide the real web address to direct victims to credential-harvesting phishing sites.",
+        tip: "Never enter passwords or personal information on websites accessed via shortened links or strange domain endings."
+      },
+
+      // 8. Pressuring users to click a link immediately
+      {
+        id: "urgent_link_pressure",
+        category: "Click Baiting & Pressure",
+        title: "Urgent Pressure to Click a Link Immediately",
+        points: 20,
+        regex: /\b(click|tap|visit|open)\b.*?(http|https|www\.|\.com|\.ly|\.update).*?\b(immediately|now|urgent|urgently|to avoid|before)\b|\b(immediately|urgently)\b.*?\b(click|tap)\b/i,
+        explanation: "Scammers combine urgent deadlines with direct links to push you into clicking without verifying destination authenticity.",
+        tip: "Never tap links under perceived urgency. Open a browser and manually type the known official domain name."
+      },
+
+      // 9. Remote access apps or unknown downloads
+      {
+        id: "remote_software",
+        category: "Malicious Software & Remote Control",
+        title: "Request to Install Unknown App or Remote Access Tool",
+        points: 30,
+        regex: /\b(install|download)\b.*?\b(apk|anydesk|teamviewer|quicksupport|screen share|\.apk)\b/i,
+        explanation: "Scammers instruct victims to install remote access tools (like AnyDesk) or APK files to gain full control of mobile banking apps.",
+        tip: "Never install remote desktop software or third-party APK files on advice from callers or unsolicited messages."
+      },
+
+      // 10. Demanding advance fees to claim prizes or jobs
+      {
+        id: "advance_fee",
+        category: "Advance Fee Scam",
+        title: "Demand to Pay Upfront Fees to Claim Prize or Job",
+        points: 25,
+        regex: /\b(processing fee|registration fee|refundable fee|security deposit|courier fee|clearance fee|advance tax)\b/i,
+        explanation: "Scammers demand a small upfront 'registration' or 'courier' fee to release a fake prize, job, or loan.",
+        tip: "Never pay an advance fee to receive a prize or job offer. Legitimate companies deduct fees or don't charge applicants."
+      },
+
+      // 11. KYC and Personal Identity Demands
+      {
+        id: "kyc_demand",
+        category: "KYC & Identity Harvesting",
+        title: "Urgent Request to Update KYC or Personal Identity",
+        points: 20,
+        regex: /\b(kyc verification|update kyc|update your aadhaar|update pan|verify identity|update details to avoid)\b/i,
+        explanation: "Fake KYC updates are a common pretext used by scammers to harvest identity documents and bank account access.",
+        tip: "Banks will never update KYC through an SMS link. Visit your local bank branch or use the official mobile app."
+      },
+
+      // 12. Security alert & suspicious login notice
+      {
+        id: "unusual_activity_alert",
+        category: "Security Alert & Verification",
+        title: "Alert of Suspicious Login or Unauthorized Activity",
+        points: 30,
+        regex: /\b(unusual activity|suspicious login|unauthorized (transaction|access|charge|activity)|security alert|login from (an? )?(unknown|new|unrecognized) device|unrecognized ip)\b/i,
+        explanation: "Security notifications may be authentic or a phishing ploy to provoke panicked credential submission.",
+        tip: "Check the service directly by logging into your account through its verified official app, not via links in the message."
+      },
+
+      // 13. General Urgency & Artificial Deadline Pressure
+      {
+        id: "urgency_deadline",
+        category: "Artificial Time Pressure",
+        title: "Urgency and Deadline Pressure Keywords",
+        points: 15,
+        regex: /\b(urgent|urgently|immediate|immediately|right now|within \d+ (hours?|mins?|minutes?)|without delay|act now|hurry|action required|limited time)\b/i,
+        explanation: "Artificial urgency prevents logical thinking and forces victims to act quickly before checking with others.",
+        tip: "Slow down. True emergencies are rarely handled via automated text messages."
+      }
+    ];
+
+    /**
+     * DOM ELEMENTS CACHE
+     * ------------------------------------------------------------
+     * Cache references to UI elements for quick access and updates.
+     */
+    const messageInput = document.getElementById("messageInput");
+    const charCounter = document.getElementById("charCounter");
+    const validationAlert = document.getElementById("validationAlert");
+    const validationText = document.getElementById("validationText");
+    const analyzeBtn = document.getElementById("analyzeBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const pasteBtn = document.getElementById("pasteBtn");
+
+    const resultsSection = document.getElementById("resultsSection");
+    const scoreBanner = document.getElementById("scoreBanner");
+    const scoreValue = document.getElementById("scoreValue");
+    const scoreProgressCircle = document.getElementById("scoreProgressCircle");
+    const riskBadge = document.getElementById("riskBadge");
+    const categoryTitle = document.getElementById("categoryTitle");
+    const categorySummary = document.getElementById("categorySummary");
+    const meterBar = document.getElementById("meterBar");
+    const explanationText = document.getElementById("explanationText");
+    const detectedCount = document.getElementById("detectedCount");
+    const indicatorsContainer = document.getElementById("indicatorsContainer");
+    const recommendationsList = document.getElementById("recommendationsList");
+    const sampleButtons = document.querySelectorAll(".sample-btn");
+
+    /**
+     * LIVE CHARACTER AND WORD COUNTER
+     */
+    function updateCounters() {
+      const text = messageInput.value;
+      const charCount = text.length;
+      const trimmed = text.trim();
+      const wordCount = trimmed ? trimmed.split(/\s+/).length : 0;
+      charCounter.textContent = `${charCount} characters • ${wordCount} words`;
+
+      // Hide validation alert if user starts typing
+      if (trimmed) {
+        validationAlert.classList.remove("visible");
+      }
+    }
+
+    messageInput.addEventListener("input", updateCounters);
+
+    /**
+     * CLEAR BUTTON ACTION
+     * Resets input field, hides results, and clears validation messages.
+     */
+    clearBtn.addEventListener("click", () => {
+      messageInput.value = "";
+      updateCounters();
+      validationAlert.classList.remove("visible");
+      resultsSection.style.display = "none";
+      messageInput.focus();
+    });
+
+    /**
+     * PASTE FROM CLIPBOARD BUTTON
+     */
+    pasteBtn.addEventListener("click", async () => {
+      try {
+        if (navigator.clipboard && navigator.clipboard.readText) {
+          const clipText = await navigator.clipboard.readText();
+          if (clipText) {
+            messageInput.value = clipText;
+            updateCounters();
+            messageInput.focus();
+          } else {
+            showValidation("Clipboard is empty.");
+          }
+        } else {
+          showValidation("Clipboard access not supported in this browser. Please use Ctrl+V to paste.");
+        }
+      } catch (err) {
+        showValidation("Could not access clipboard. Please paste manually using Ctrl+V.");
+      }
+    });
+
+    /**
+     * QUICK SAMPLE BUTTONS (Requirement 12)
+     * Populates sample messages for instant testing.
+     */
+    sampleButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const sampleType = btn.getAttribute("data-type");
+        if (SAMPLE_MESSAGES[sampleType]) {
+          messageInput.value = SAMPLE_MESSAGES[sampleType];
+          updateCounters();
+          analyzeMessage();
+        }
+      });
+    });
+
+    /**
+     * KEYBOARD SHORTCUT: Ctrl+Enter (or Cmd+Enter on Mac) triggers analysis (Requirement 14)
+     */
+    messageInput.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        e.preventDefault();
+        analyzeMessage();
+      }
+    });
+
+    analyzeBtn.addEventListener("click", analyzeMessage);
+
+    /**
+     * SHOW VALIDATION ERROR (Requirement 10)
+     */
+    function showValidation(msg) {
+      validationText.textContent = msg;
+      validationAlert.classList.add("visible");
+    }
+
+    /**
+     * CORE FRAUD DETECTION ALGORITHM (Requirements 6, 7, 8, 9, 10, 11)
+     * ------------------------------------------------------------
+     * 1. Validates that message is non-empty.
+     * 2. Iterates over rule patterns to detect indicators.
+     * 3. Calculates deduplicated risk points.
+     * 4. Multi-indicator synergy: flags compounding risk if multiple
+     *    unrelated categories trigger simultaneously.
+     * 5. Caps overall score between 0 and 100.
+     * 6. Classifies into:
+     *    - 0-29: Low Risk (Likely Genuine)
+     *    - 30-59: Medium Risk (Suspicious – Needs Verification)
+     *    - 60-100: High Risk (Likely Fraud)
+     */
+    function analyzeMessage() {
+      const text = messageInput.value.trim();
+
+      // Requirement 10: Friendly validation if input is empty
+      if (!text) {
+        showValidation("Please paste or type a message to analyze.");
+        messageInput.focus();
+        resultsSection.style.display = "none";
+        return;
+      }
+
+      validationAlert.classList.remove("visible");
+
+      // Store matched rules
+      const matchedRules = [];
+      let calculatedPoints = 0;
+
+      // Scan message against each rule definition
+      for (const rule of FRAUD_RULES) {
+        const match = text.match(rule.regex);
+        if (match) {
+          // Extract the matched snippet (up to 45 chars for neat display)
+          let matchedSnippet = match[0].trim();
+          if (matchedSnippet.length > 45) {
+            matchedSnippet = matchedSnippet.slice(0, 42) + "...";
+          }
+
+          matchedRules.push({
+            rule: rule,
+            snippet: matchedSnippet,
+            points: rule.points
+          });
+
+          // Add rule points (each rule matches only once to avoid duplicate stacking)
+          calculatedPoints += rule.points;
+        }
+      }
+
+      // Multi-indicator synergy: In real cyberattacks, combining high-risk categories
+      // (e.g. Urgency + Credentials + Links) significantly increases likelihood of fraud.
+      if (matchedRules.length >= 2) {
+        // Compound bonus of 5 points for each additional distinct threat vector
+        const synergyBonus = (matchedRules.length - 1) * 5;
+        calculatedPoints += synergyBonus;
+      }
+
+      // Bound score between 0 and 100 (Requirements 7 & 9)
+      const finalScore = Math.min(100, Math.max(0, calculatedPoints));
+
+      // Classify message based on defined tiers (Requirement 9)
+      let classification = {};
+      if (finalScore >= 60) {
+        classification = {
+          level: "High Risk",
+          title: "Likely Fraud",
+          theme: "high",
+          color: "var(--risk-high)",
+          bgColor: "var(--risk-high-bg)",
+          borderColor: "var(--risk-high-border)",
+          summary: "This message contains multiple severe warning signs strongly characteristic of phishing, smishing, or scam attempts."
+        };
+      } else if (finalScore >= 30) {
+        classification = {
+          level: "Medium Risk",
+          title: "Suspicious – Needs Verification",
+          theme: "medium",
+          color: "var(--risk-medium)",
+          bgColor: "var(--risk-medium-bg)",
+          borderColor: "var(--risk-medium-border)",
+          summary: "This message contains warning indicators that warrant caution. Further verification is recommended before taking any action."
+        };
+      } else {
+        classification = {
+          level: "Low Risk",
+          title: "Likely Genuine",
+          theme: "low",
+          color: "var(--risk-low)",
+          bgColor: "var(--risk-low-bg)",
+          borderColor: "var(--risk-low-border)",
+          summary: "No immediate scam triggers were detected. However, always exercise normal digital hygiene."
+        };
+      }
+
+      // Render the results into the UI
+      displayResults(finalScore, classification, matchedRules, text);
+    }
+
+    /**
+     * RENDER RESULTS TO DOM (Requirement 8)
+     * ------------------------------------------------------------
+     * Updates colors, progress meters, detected indicators, and recommendations.
+     */
+    function displayResults(score, classification, matchedRules, originalText) {
+      // Reveal the results container
+      resultsSection.style.display = "flex";
+
+      // 1. Update Score & Text
+      scoreValue.textContent = score;
+      categoryTitle.textContent = classification.title;
+      categoryTitle.style.color = classification.color;
+      categorySummary.textContent = classification.summary;
+
+      // 2. Update Risk Badge
+      riskBadge.textContent = classification.level;
+      riskBadge.style.backgroundColor = classification.bgColor;
+      riskBadge.style.color = classification.color;
+      riskBadge.style.border = `1px solid ${classification.borderColor}`;
+
+      // 3. Update Circular Meter (SVG stroke-dashoffset)
+      // Circumference = 2 * PI * r = 2 * 3.14159 * 45 ≈ 283
+      const circumference = 283;
+      const offset = circumference - (score / 100) * circumference;
+      scoreProgressCircle.style.strokeDashoffset = offset;
+      scoreProgressCircle.style.stroke = classification.color;
+
+      // 4. Update Linear Meter Bar
+      meterBar.style.width = `${score}%`;
+      meterBar.style.backgroundColor = classification.color;
+
+      // 5. Update Score Banner border
+      scoreBanner.style.borderColor = classification.borderColor;
+
+      // 6. Generate Simple Plain-Language Explanation (Requirement 8 & 11)
+      if (matchedRules.length === 0) {
+        explanationText.innerHTML = `
+          <strong>Neutral Assessment:</strong> No known high-risk keywords, urgency threats, or credential requests were detected in this message.
+          <br><br>
+          <em>Important Safety Note (Requirement 11):</em> The absence of detected warning signs does <strong>not</strong> conclusively prove that a message is genuine. Attackers regularly modify their phrasing, use compromised contact accounts, or craft customized spear-phishing messages. Always consider the context and verify unusual requests directly with the sender.
+        `;
+      } else {
+        const topCategories = [...new Set(matchedRules.map(m => m.rule.category))].join(", ");
+        explanationText.innerHTML = `
+          This message was assigned a risk score of <strong>${score}/100 (${classification.level})</strong> because it triggered 
+          <strong>${matchedRules.length}</strong> scam indicator pattern(s) across these categories: <em>${escapeHtml(topCategories)}</em>.
+          <br><br>
+          Scammers commonly combine high-pressure language (such as time limits or account suspension threats) with requests for credentials, money transfers, or unverified links to bypass logical decision-making.
+        `;
+      }
+
+      // 7. Render Detected Warning Indicators (Requirement 8)
+      detectedCount.textContent = matchedRules.length;
+      indicatorsContainer.innerHTML = "";
+
+      if (matchedRules.length === 0) {
+        const neutralCard = document.createElement("div");
+        neutralCard.className = "neutral-notice";
+        neutralCard.innerHTML = `
+          <strong>No suspicious indicators flagged!</strong>
+          <p style="margin-top: 4px; font-size: 0.88rem; opacity: 0.9;">
+            The message did not match any of our scam pattern categories. Continue practicing everyday cybersecurity vigilance.
+          </p>
+        `;
+        indicatorsContainer.appendChild(neutralCard);
+      } else {
+        matchedRules.forEach(item => {
+          const card = document.createElement("div");
+          card.className = `indicator-card ${item.rule.points >= 25 ? 'high' : 'medium'}`;
+
+          card.innerHTML = `
+            <div class="indicator-header">
+              <span class="indicator-title">
+                <span>⚠️</span>
+                <span>${escapeHtml(item.rule.title)}</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">(${escapeHtml(item.rule.category)})</span>
+              </span>
+              <span class="indicator-points">+${item.points} Risk Points</span>
+            </div>
+            <div class="indicator-details">
+              <strong>Trigger match:</strong> <span class="matched-phrase">"${escapeHtml(item.snippet)}"</span>
+            </div>
+            <div class="indicator-details" style="font-size: 0.85rem; color: var(--text-muted);">
+              ${escapeHtml(item.rule.explanation)}
+            </div>
+          `;
+          indicatorsContainer.appendChild(card);
+        });
+      }
+
+      // 8. Render Practical Safety Recommendations (Requirement 8)
+      recommendationsList.innerHTML = "";
+      const tips = buildSafetyRecommendations(matchedRules, score);
+
+      tips.forEach(tip => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+          </svg>
+          <div>${tip}</div>
+        `;
+        recommendationsList.appendChild(li);
+      });
+
+      // Smooth scroll into results on mobile
+      resultsSection.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    /**
+     * BUILD PRACTICAL RECOMMENDATIONS (Requirement 8)
+     * Produces specific actionable advice based on matched threat patterns.
+     */
+    function buildSafetyRecommendations(matchedRules, score) {
+      const recommendations = [];
+
+      // Check for specific indicator categories
+      const hasOTP = matchedRules.some(m => m.rule.id === "credential_otp");
+      const hasLink = matchedRules.some(m => m.rule.id === "suspicious_link" || m.rule.id === "urgent_link_pressure");
+      const hasBank = matchedRules.some(m => m.rule.id === "account_threat" || m.rule.id === "urgent_transfer" || m.rule.id === "kyc_demand");
+      const hasDownload = matchedRules.some(m => m.rule.id === "remote_software");
+      const hasPrizeOrJob = matchedRules.some(m => m.rule.id === "lottery_prize" || m.rule.id === "suspicious_investment_job" || m.rule.id === "advance_fee");
+
+      if (hasOTP) {
+        recommendations.push("<strong>Never share OTPs or PINs:</strong> Legitimate banks and support teams will never contact you asking for your verification code. Treat any OTP request as an immediate red flag.");
+      }
+
+      if (hasLink) {
+        recommendations.push("<strong>Do NOT click the link:</strong> Avoid clicking links sent via unsolicited messages. If the message claims to be from a service you use, type the official address directly into your browser.");
+      }
+
+      if (hasBank) {
+        recommendations.push("<strong>Contact official customer service:</strong> Instead of replying or calling numbers in the message, call the official phone number printed on the back of your credit/debit card or official statement.");
+      }
+
+      if (hasDownload) {
+        recommendations.push("<strong>Do not install unknown files or remote software:</strong> Never download .apk files or install remote-control tools like AnyDesk/TeamViewer at the request of an incoming caller or message.");
+      }
+
+      if (hasPrizeOrJob) {
+        recommendations.push("<strong>Never pay money to claim rewards or start a job:</strong> Legitimate contests do not require entry fees to claim winnings, and real employers do not charge candidate registration fees.");
+      }
+
+      // Universal baseline advice
+      if (score >= 60) {
+        recommendations.push("<strong>Block and report:</strong> Mark this sender as spam/phishing in your messaging app and delete the message.");
+      } else if (score >= 30) {
+        recommendations.push("<strong>Verify through secondary channels:</strong> Check with the purported sender using a known, trusted phone number before clicking or sharing information.");
+      } else {
+        recommendations.push("<strong>Stay vigilant:</strong> Even though this message seems benign, never share sensitive banking or personal information without verifying the recipient.");
+      }
+
+      return recommendations;
+    }
+
+    /**
+     * Helper to safely escape HTML special characters
+     */
+    function escapeHtml(string) {
+      const div = document.createElement("div");
+      div.textContent = string;
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>
